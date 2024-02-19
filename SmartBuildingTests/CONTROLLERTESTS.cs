@@ -47,52 +47,51 @@ namespace CONTROLLERTESTS
             Assert.AreEqual(newId.ToLower(), controller.GetBuildingId());
         }
 
-        // // L1R5: Test constructor sets currentState to “out of hours”
-        // [Test]
-        // public void Constructor_WhenCalled_SetsCurrentStateToOutOfHours()
-        // {
-        //     // Arrange & Act
-        //     var controller = new BuildingController("id");
+        // L1R5: Test constructor sets currentState to “out of hours”
+        [Test]
+        public void Constructor_WhenCalled_SetsCurrentStateToOutOfHoursInitially()
+        {
+            // Arrange & Act
+            var controller = new BuildingController("id");
 
-        //     // Assert
-        //     Assert.AreEqual("out of hours", controller.GetCurrentState());
-        // }
+            // Assert
+            Assert.AreEqual("out of hours", controller.GetCurrentState());
+        }
 
-        // // L1R6: Test GetCurrentState returns the current state
-        // [Test]
-        // public void GetCurrentState_WhenCalled_ReturnsCurrentState()
-        // {
-        //     // Arrange
-        //     var controller = new BuildingController("id");
+        // L1R6: Test GetCurrentState returns the current state
+        [Test]
+        public void GetCurrentState_WhenCalled_ReturnsCurrentState()
+        {
+            // Arrange
+            var controller = new BuildingController("id");
 
-        //     // Act
-        //     var state = controller.GetCurrentState();
+            // Act
+            var state = controller.GetCurrentState();
 
-        //     // Assert
-        //     Assert.AreEqual("out of hours", state);
-        // }
+            // Assert
+            Assert.AreEqual("out of hours", state);
+        }
 
-        // // L1R7: Test SetCurrentState with valid and invalid states
-        // [TestCase("closed", true)]
-        // [TestCase("out of hours", true)]
-        // [TestCase("open", true)]
-        // [TestCase("fire drill", true)]
-        // [TestCase("fire alarm", true)]
-        // [TestCase("invalid", false)]
-        // public void SetCurrentState_WithDifferentStates_SetsStateAccordingly(string state, bool expectedOutcome)
-        // {
-        //     // Arrange
-        //     var controller = new BuildingController("id");
+        // L1R7: Test SetCurrentState with valid and invalid states
+        [TestCase("closed", true)]
+        [TestCase("out of hours", true)]
+        [TestCase("open", true)]
+        [TestCase("fire drill", true)]
+        [TestCase("fire alarm", true)]
+        [TestCase("should be invalid", false)]
+        public void SetCurrentState_WithDifferentStates_SetsStateAccordingly(string state, bool expectedOutcome)
+        {
+            // Arrange
+            var controller = new BuildingController("id");
 
-        //     // Act
-        //     var result = controller.SetCurrentState(state);
+            // Act
+            var result = controller.SetCurrentState(state);
 
-        //     // Assert
-        //     Assert.AreEqual(expectedOutcome, result);
-        //     if (expectedOutcome)
-        //     {
-        //         Assert.AreEqual(state, controller.GetCurrentState());
-        //     }
-        // }
+            Assert.AreEqual(expectedOutcome, result);
+            if (expectedOutcome)
+            {
+                Assert.AreEqual(state, controller.GetCurrentState());
+            }
+        }
     }
 }
