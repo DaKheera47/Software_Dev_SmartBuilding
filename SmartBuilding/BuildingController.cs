@@ -16,6 +16,9 @@
         // set building id
         public void SetBuildingId(string buildingId)
         {
+            // convert to lowercase
+            buildingId = buildingId.ToLower();
+
             // convert building id to int
             this.buildingId = buildingId;
         }
