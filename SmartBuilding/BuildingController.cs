@@ -7,6 +7,10 @@
         private string? buildingId;
         private string? currentState;
         private string? previousState;
+        private string[] regularStates = { "closed", "out of hours", "open" };
+        private string[] emergencyStates = { "fire drill", "fire alarm" };
+        private string[] allValidStates;
+
 
         // constructor
         public BuildingController(string buildingId)
@@ -15,6 +19,20 @@
             SetBuildingId(buildingId);
             this.currentState = "out of hours";
             this.previousState = this.currentState;
+            this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
+        }
+
+        // additional constructor with buildingID and currentState
+        public BuildingController(string buildingId, string currentState)
+        {
+            // set building id
+            SetBuildingId(buildingId);
+
+            // set current state
+            if (!regularStates.Contains(currentState))
+            {
+                throw new System.ArgumentException("Argument Exception: BuildingController can only be initialised to the following states 'open', 'closed', 'out of hours'");
+            }
         }
 
         // set building id
@@ -42,30 +60,26 @@
         // set current state
         public bool SetCurrentState(string state)
         {
-            string[] validStates = { "closed", "out of hours", "open", "fire drill", "fire alarm" };
+            // set state to lowercase
+            state = state.ToLower();
 
-            // Special handling for 'H' to return to the previous state
-            if (state == "H")
+            // if invalid state
+            if (!allValidStates.Contains(state)) { return false; }
+
+            // Remember the previous state before changing to a new state
+            if (!emergencyStates.Contains(state))
             {
-                currentState = previousState;
-                return true;
+                previousState = currentState;
             }
 
-            if (Array.IndexOf(validStates, state) != -1)
-            {
-                // Remember the previous state before changing to a new state
-                if (currentState != "fire alarm")
-                {
-                    previousState = currentState;
-                }
-
-                currentState = state;
-                return true;
-            }
-            else
+            // if current state is in emergency, then do not change the state unless it is reverting to history state
+            if (emergencyStates.Contains(currentState) && state != previousState)
             {
                 return false;
             }
+
+            currentState = state;
+            return true;
         }
     }
 }
