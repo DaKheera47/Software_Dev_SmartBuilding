@@ -6,13 +6,15 @@
         // define building variables
         private string? buildingId;
         private string? currentState;
+        private string? previousState;
 
         // constructor
         public BuildingController(string buildingId)
         {
             // set building id
             SetBuildingId(buildingId);
-            currentState = "out of hours";
+            this.currentState = "out of hours";
+            this.previousState = this.currentState;
         }
 
         // set building id
@@ -40,13 +42,23 @@
         // set current state
         public bool SetCurrentState(string state)
         {
-            // make a list of valid states to compare to
             string[] validStates = { "closed", "out of hours", "open", "fire drill", "fire alarm" };
 
-            // check if state is valid
+            // Special handling for 'H' to return to the previous state
+            if (state == "H")
+            {
+                currentState = previousState;
+                return true;
+            }
+
             if (Array.IndexOf(validStates, state) != -1)
             {
-                // set current state
+                // Remember the previous state before changing to a new state
+                if (currentState != "fire alarm")
+                {
+                    previousState = currentState;
+                }
+
                 currentState = state;
                 return true;
             }

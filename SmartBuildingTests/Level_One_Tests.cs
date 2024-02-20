@@ -1,10 +1,10 @@
 using NUnit.Framework;
 using SmartBuilding;
 
-namespace CONTROLLERTESTS
+namespace SmartBuildingTests
 {
     [TestFixture]
-    public class BuildingControllerTests
+    public class Level_One_Tests
     {
         // L1R1 and L1R3: Test constructor assigns buildingID with lowercase conversion
         [Test]
