@@ -7,10 +7,9 @@
         private string? buildingId;
         private string? currentState;
         private string? previousState;
-        private string[] regularStates = { "closed", "out of hours", "open" };
-        private string[] emergencyStates = { "fire drill", "fire alarm" };
+        readonly private string[] regularStates = { "closed", "out of hours", "open" };
+        readonly private string[] emergencyStates = { "fire drill", "fire alarm" };
         private string[] allValidStates;
-
 
         // constructor
         public BuildingController(string buildingId)
@@ -25,14 +24,19 @@
         // additional constructor with buildingID and currentState
         public BuildingController(string buildingId, string currentState)
         {
+            this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
+
             // set building id
             SetBuildingId(buildingId);
 
-            // set current state
-            if (!regularStates.Contains(currentState))
-            {
-                throw new System.ArgumentException("Argument Exception: BuildingController can only be initialised to the following states 'open', 'closed', 'out of hours'");
-            }
+            // set SetCurrentState
+            SetCurrentState(currentState);
+
+            // // set current state
+            // if (!regularStates.Contains(currentState))
+            // {
+            //     throw new System.ArgumentException("Argument Exception: BuildingController can only be initialised to the following states 'open', 'closed', 'out of hours'");
+            // }
         }
 
         // set building id
