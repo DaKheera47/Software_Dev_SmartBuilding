@@ -11,6 +11,13 @@
         readonly private string[] emergencyStates = { "fire drill", "fire alarm" };
         private string[] allValidStates;
 
+        // managers
+        private ILightManager? iLightManager;
+        private IFireAlarmManager? iFireAlarmManager;
+        private IDoorManager? iDoorManager;
+        private IWebService? iWebService;
+        private IEmailService? iEmailService;
+
         // constructor
         public BuildingController(string buildingId)
         {
@@ -40,10 +47,34 @@
         }
 
         // L3R1
-        BuildingController(string id, ILightManager iLightManager, IFireAlarmManager iFireAlarmManager, IDoorManager iDoorManager, IWebService iWebService, IEmailService iEmailService)
+        public BuildingController(string id, ILightManager iLightManager, IFireAlarmManager iFireAlarmManager, IDoorManager iDoorManager, IWebService iWebService, IEmailService iEmailService)
         {
             this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
+            this.iLightManager = iLightManager;
+            this.iFireAlarmManager = iFireAlarmManager;
+            this.iDoorManager = iDoorManager;
+            this.iWebService = iWebService;
+            this.iEmailService = iEmailService;
+        }
 
+        // L3R3
+        public string GetStatusReport()
+        {
+            if (iLightManager == null || iFireAlarmManager == null || iDoorManager == null)
+            {
+                throw new System.ArgumentException("Argument Exception: BuildingController has not been initialised with all the required managers");
+            }
+
+            // get status of all managers
+            string lightStatus = iLightManager.GetStatus();
+            string doorStatus = iDoorManager.GetStatus();
+            string fireAlarmStatus = iFireAlarmManager.GetStatus();
+
+            // combine all status into one string
+            // in order of light, door, fire alarm
+            string statusReport = lightStatus + doorStatus + fireAlarmStatus;
+
+            return statusReport;
         }
 
         // set building id
