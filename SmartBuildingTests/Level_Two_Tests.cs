@@ -51,6 +51,7 @@ namespace SmartBuildingTests
             Assert.AreEqual("closed", controller.GetCurrentState());
         }
 
+        // L2R3: TheBuildingController class can only be initialised to one of the three normaloperation states (“closed”, “out of hours” or “open”).
         [Test]
         public void Constructor_WithInvalidStartState_ThrowsArgumentException()
         {

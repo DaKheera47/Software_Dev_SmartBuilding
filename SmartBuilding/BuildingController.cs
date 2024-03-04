@@ -22,21 +22,21 @@
         }
 
         // additional constructor with buildingID and currentState
-        public BuildingController(string buildingId, string currentState)
+        public BuildingController(string buildingId, string startState)
         {
             this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
+
+            // set current state
+            if (!regularStates.Contains(startState))
+            {
+                throw new System.ArgumentException("Argument Exception: BuildingController can only be initialised to the following states 'open', 'closed', 'out of hours'");
+            }
 
             // set building id
             SetBuildingId(buildingId);
 
             // set SetCurrentState
-            SetCurrentState(currentState);
-
-            // // set current state
-            // if (!regularStates.Contains(currentState))
-            // {
-            //     throw new System.ArgumentException("Argument Exception: BuildingController can only be initialised to the following states 'open', 'closed', 'out of hours'");
-            // }
+            SetCurrentState(startState);
         }
 
         // set building id
