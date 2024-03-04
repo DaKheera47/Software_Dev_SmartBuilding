@@ -1,5 +1,6 @@
 using NSubstitute;
 using NUnit.Framework;
+using SmartBuilding;
 
 namespace SmartBuildingTests
 {

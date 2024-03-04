@@ -1,4 +1,4 @@
-namespace SmartBuildingTests;
+namespace SmartBuilding;
 
 public interface ILightManager
 {

@@ -2,7 +2,7 @@
 {
     public class BuildingController
     {
-        //Write BuildingController code here...
+        // Write BuildingController code here...
         // define building variables
         private string? buildingId;
         private string? currentState;
@@ -37,6 +37,13 @@
 
             // set SetCurrentState
             SetCurrentState(startState);
+        }
+
+        // L3R1
+        BuildingController(string id, ILightManager iLightManager, IFireAlarmManager iFireAlarmManager, IDoorManager iDoorManager, IWebService iWebService, IEmailService iEmailService)
+        {
+            this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
+
         }
 
         // set building id
