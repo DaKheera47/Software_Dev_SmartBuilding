@@ -7,6 +7,34 @@ namespace SmartBuildingTests
     [TestFixture]
     public class Level_Three_Tests
     {
+        [TestFixture]
+        public class BuildingControllerTests
+        {
+            [TestCase(true, true, "open")]
+            [TestCase(false, false, "closed")]
+            public void SetCurrentState_ToOpen_CallsDoorManagerAndSetsStateAccordingly(bool doorOpenResult, bool expectedSetStateResult, string expectedStateAfterOpenAttempt)
+            {
+                // Arrange
+                var lightManager = Substitute.For<ILightManager>();
+                var doorManager = Substitute.For<IDoorManager>();
+                var fireAlarmManager = Substitute.For<IFireAlarmManager>();
+                var webService = Substitute.For<IWebService>();
+                var emailService = Substitute.For<IEmailService>();
+                var buildingController = new BuildingController("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
+
+                // Assuming the initial state is "closed" for simplicity
+                buildingController.SetCurrentState("closed");
+                doorManager.OpenAllDoors().Returns(doorOpenResult);
+
+                // Act
+                var result = buildingController.SetCurrentState("open");
+
+                // Assert
+                Assert.AreEqual(expectedSetStateResult, result, $"Expected SetCurrentState to return {expectedSetStateResult}.");
+                Assert.AreEqual(expectedStateAfterOpenAttempt, buildingController.GetCurrentState(), $"Expected the state to be {expectedStateAfterOpenAttempt}.");
+            }
+        }
+
         // L3R4
         [TestCase("Lights,OK,OK,OK,", "Doors,OK,OK,OK,", "FireAlarm,OK,OK,OK,", "Lights,OK,OK,OK,Doors,OK,OK,OK,FireAlarm,OK,OK,OK,")]
         [TestCase("Lights,FAULT,OK,OK,", "Doors,OK,FAULT,OK,", "FireAlarm,FAULT,OK,OK,", "Lights,FAULT,OK,OK,Doors,OK,FAULT,OK,FireAlarm,FAULT,OK,OK,")]

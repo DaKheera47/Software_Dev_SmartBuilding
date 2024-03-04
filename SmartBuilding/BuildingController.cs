@@ -108,6 +108,18 @@
             // if invalid state
             if (!allValidStates.Contains(state)) { return false; }
 
+            // if state being set to is open, then open all doors
+            if (state == "open")
+            {
+                if (iDoorManager != null)
+                {
+                    bool openedDoors = iDoorManager.OpenAllDoors();
+
+                    // if doors did not open
+                    if (!openedDoors) { return false; }
+                }
+            }
+
             // Remember the previous state before changing to a new state
             if (!emergencyStates.Contains(state))
             {
