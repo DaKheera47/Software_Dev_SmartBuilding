@@ -7,6 +7,30 @@ namespace SmartBuildingTests
     [TestFixture]
     public class Level_Three_Tests
     {
+        // L3R5
+        [TestCase(true, true, "open", TestName = "SetCurrentState_Open_SuccessfullyOpensDoors_ResultsInOpenState")]
+        [TestCase(false, false, "closed", TestName = "SetCurrentState_Open_FailsToOpenDoors_StateRemainsClosed")]
+        public void SetCurrentState_Open_VariesByDoorManagerResponse(bool doorOpenResult, bool expectedSetStateResult, string expectedStateAfterOpenAttempt)
+        {
+            // Arrange
+            var lightManager = Substitute.For<ILightManager>();
+            var doorManager = Substitute.For<IDoorManager>();
+            var fireAlarmManager = Substitute.For<IFireAlarmManager>();
+            var webService = Substitute.For<IWebService>();
+            var emailService = Substitute.For<IEmailService>();
+            var buildingController = new BuildingController("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
+
+            buildingController.SetCurrentState("closed"); // Ensure the initial state is closed before attempting to open
+            doorManager.OpenAllDoors().Returns(doorOpenResult);
+
+            // Act
+            var result = buildingController.SetCurrentState("open");
+
+            // Assert
+            Assert.AreEqual(expectedSetStateResult, result, "Unexpected result from SetCurrentState when opening.");
+            Assert.AreEqual(expectedStateAfterOpenAttempt, buildingController.GetCurrentState(), "Unexpected final state after attempt to open.");
+        }
+
         // L3R4
         [TestCase(true, true, "open")]
         [TestCase(false, false, "closed")]
