@@ -7,35 +7,32 @@ namespace SmartBuildingTests
     [TestFixture]
     public class Level_Three_Tests
     {
-        [TestFixture]
-        public class BuildingControllerTests
+        // L3R4
+        [TestCase(true, true, "open")]
+        [TestCase(false, false, "closed")]
+        public void SetCurrentState_ToOpen_CallsDoorManagerAndSetsStateAccordingly(bool doorOpenResult, bool expectedSetStateResult, string expectedStateAfterOpenAttempt)
         {
-            [TestCase(true, true, "open")]
-            [TestCase(false, false, "closed")]
-            public void SetCurrentState_ToOpen_CallsDoorManagerAndSetsStateAccordingly(bool doorOpenResult, bool expectedSetStateResult, string expectedStateAfterOpenAttempt)
-            {
-                // Arrange
-                var lightManager = Substitute.For<ILightManager>();
-                var doorManager = Substitute.For<IDoorManager>();
-                var fireAlarmManager = Substitute.For<IFireAlarmManager>();
-                var webService = Substitute.For<IWebService>();
-                var emailService = Substitute.For<IEmailService>();
-                var buildingController = new BuildingController("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
+            // Arrange
+            var lightManager = Substitute.For<ILightManager>();
+            var doorManager = Substitute.For<IDoorManager>();
+            var fireAlarmManager = Substitute.For<IFireAlarmManager>();
+            var webService = Substitute.For<IWebService>();
+            var emailService = Substitute.For<IEmailService>();
+            var buildingController = new BuildingController("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
 
-                // Assuming the initial state is "closed" for simplicity
-                buildingController.SetCurrentState("closed");
-                doorManager.OpenAllDoors().Returns(doorOpenResult);
+            // starting from state being "closed"
+            buildingController.SetCurrentState("closed");
+            doorManager.OpenAllDoors().Returns(doorOpenResult);
 
-                // Act
-                var result = buildingController.SetCurrentState("open");
+            // Act
+            var result = buildingController.SetCurrentState("open");
 
-                // Assert
-                Assert.AreEqual(expectedSetStateResult, result, $"Expected SetCurrentState to return {expectedSetStateResult}.");
-                Assert.AreEqual(expectedStateAfterOpenAttempt, buildingController.GetCurrentState(), $"Expected the state to be {expectedStateAfterOpenAttempt}.");
-            }
+            // Assert
+            Assert.AreEqual(expectedSetStateResult, result, $"Expected SetCurrentState to return {expectedSetStateResult}.");
+            Assert.AreEqual(expectedStateAfterOpenAttempt, buildingController.GetCurrentState(), $"Expected the state to be {expectedStateAfterOpenAttempt}.");
         }
 
-        // L3R4
+        // L3R3
         [TestCase("Lights,OK,OK,OK,", "Doors,OK,OK,OK,", "FireAlarm,OK,OK,OK,", "Lights,OK,OK,OK,Doors,OK,OK,OK,FireAlarm,OK,OK,OK,")]
         [TestCase("Lights,FAULT,OK,OK,", "Doors,OK,FAULT,OK,", "FireAlarm,FAULT,OK,OK,", "Lights,FAULT,OK,OK,Doors,OK,FAULT,OK,FireAlarm,FAULT,OK,OK,")]
         public void GetStatusReport_CombinesManagerStatusesIntoSingleString(string lightStatus, string doorStatus, string fireAlarmStatus, string expectedStatusReport)
@@ -59,6 +56,7 @@ namespace SmartBuildingTests
             Assert.AreEqual(expectedStatusReport, statusReport);
         }
 
+        // L3R2
         [TestCase("Lights,OK,OK,OK,")]
         [TestCase("Lights,FAULT,OK,OK,")]
         public void GetStatus_AllLightsOk_ReturnsAllOkStatus(string possibleStatus)
