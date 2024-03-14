@@ -107,7 +107,7 @@ namespace SmartBuildingTests
         [TestCase("fire drill", true, Category = "Level_One_Tests")]
         [TestCase("fire alarm", true, Category = "Level_One_Tests")]
         [TestCase("clsed", false, Category = "Level_One_Tests")]
-        [TestCase("CLOSED", false, Category = "Level_One_Tests")]
+        [TestCase("CLOSED", true, Category = "Level_One_Tests")]
         [TestCase("should be invalid", false, Category = "Level_One_Tests")]
         [TestCase("bkPoQyBXzedZ/Ggf", false, Category = "Level_One_Tests")]
         [TestCase("RI2GV9ubBqOIev+7", false, Category = "Level_One_Tests")]

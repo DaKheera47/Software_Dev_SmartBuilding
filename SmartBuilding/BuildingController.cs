@@ -129,7 +129,7 @@
         // set current state
         public bool SetCurrentState(string state)
         {
-            string incomingState = state;
+            string incomingState = state.ToLower();
 
             // if current state is null, set to incoming state
             if (currentState == null)
