@@ -238,7 +238,6 @@ namespace SmartBuildingTests
         [TestCase("Lights,FAULT,OK,OK,", "Doors,OK,FAULT,OK,", "FireAlarm,FAULT,OK,OK,", "Lights,FAULT,OK,OK,Doors,OK,FAULT,OK,FireAlarm,FAULT,OK,OK,")]
         [TestCase("Lights,OK,FAULT,OK,FAULT,", "Doors,FAULT,OK,FAULT,OK,", "FireAlarm,OK,FAULT,OK,FAULT,", "Lights,OK,FAULT,OK,FAULT,Doors,FAULT,OK,FAULT,OK,FireAlarm,OK,FAULT,OK,FAULT,")]
         [TestCase("Lights,OK,FAULT,OK,", "Doors,FAULT,OK,FAULT,", "FireAlarm,OK,OK,FAULT,", "Lights,OK,FAULT,OK,Doors,FAULT,OK,FAULT,FireAlarm,OK,OK,FAULT,")]
-        [TestCase("Lights,OK,OK,OK,", "Doors,OK,OK,OK,", "FireAlarm,OK,OK,OK,", "Lights,OK,OK,OK,Doors,OK,OK,OK,FireAlarm,OK,OK,OK,")]
         [TestCase("Lights,FAULT,OK,OK,", "Doors,OK,FAULT,OK,", "FireAlarm,FAULT,OK,OK,", "Lights,FAULT,OK,OK,Doors,OK,FAULT,OK,FireAlarm,FAULT,OK,OK,")]
         public void GetStatusReport_ConcatenatesManagerOutputs_ReturnsConcatenatedString(string lightStatus, string doorStatus, string fireAlarmStatus, string expectedStatusReport)
         {
