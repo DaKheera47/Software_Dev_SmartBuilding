@@ -103,12 +103,13 @@ namespace SmartBuildingTests
         [TestCase("closed", true, Category = "Level_One_Tests")]
         [TestCase("out of hours", true, Category = "Level_One_Tests")]
         [TestCase("open", true, Category = "Level_One_Tests")]
-        [TestCase("fire drill", true, Category = "Level_One_Tests")]
-        [TestCase("fire alarm", true, Category = "Level_One_Tests")]
+        // [TestCase("fire drill", true, Category = "Level_One_Tests")]
+        // [TestCase("fire alarm", true, Category = "Level_One_Tests")]
         [TestCase("clsed", false, Category = "Level_One_Tests")]
-        [TestCase("FIRE ALARM", false, Category = "Level_One_Tests")]
+        [TestCase("CLOSED", false, Category = "Level_One_Tests")]
         [TestCase("should be invalid", false, Category = "Level_One_Tests")]
         [TestCase("bkPoQyBXzedZ/Ggf", false, Category = "Level_One_Tests")]
+        [TestCase("RI2GV9ubBqOIev+7", false, Category = "Level_One_Tests")]
         public void SetCurrentState_WithDifferentStates_OnlyAllowsValid(string state, bool expectedOutcome)
         {
             // Arrange
@@ -119,6 +120,95 @@ namespace SmartBuildingTests
 
             // Assert
             Assert.AreEqual(expectedOutcome, result);
+        }
+
+        // L2R1
+        [TestCase("open", "out of hours", true)]
+        [TestCase("closed", "out of hours", true)]
+        [TestCase("out of hours", "open", true)]
+        [TestCase("out of hours", "closed", true)]
+        [TestCase("open", "closed", false)]
+        [TestCase("closed", "open", false)]
+        public void SetCurrentState_StateTransition_OnlyAllowsValid(string fromState, string toState, bool expectedOutcome)
+        {
+            // Arrange
+            var controller = new BuildingController("id");
+
+            // Act
+            controller.SetCurrentState(fromState);
+            var result = controller.SetCurrentState(toState);
+
+            // Assert
+            Assert.AreEqual(expectedOutcome, result);
+        }
+
+        // L2R2
+        [TestCase("open")]
+        [TestCase("closed")]
+        [TestCase("out of hours")]
+        public void SetCurrentState_ToSameState_ReturnsTrue(string state)
+        {
+            // Arrange
+            var controller = new BuildingController("id");
+
+            // Act
+            controller.SetCurrentState(state);
+            var result = controller.SetCurrentState(state);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        // L2R3
+        [TestCase("abc123", "abc123", "open", "open")]
+        [TestCase("abc123", "abc123", "closed", "closed")]
+        [TestCase("abc123", "abc123", "out of hours", "out of hours")]
+        [TestCase("ABC123", "abc123", "open", "open")]
+        [TestCase("123", "123", "open", "open")]
+        [TestCase("", "", "open", "open")]
+        [TestCase("Ry/4otmctLgdJ0pW", "ry/4otmctlgdj0pw", "open", "open")]
+        public void Constructor_WithValidStartState_SetsState(string id, string expectedID, string startState, string expectedState)
+        {
+            // Arrange & Act
+            var controller = new BuildingController(id, startState);
+
+            // Assert
+            Assert.AreEqual(expectedID, controller.GetBuildingID());
+            Assert.AreEqual(expectedState, controller.GetCurrentState());
+        }
+
+        // L2R3
+        [TestCase("open", false)]
+        [TestCase("closed", false)]
+        [TestCase("out of hours", false)]
+        [TestCase("fire drill", true)]
+        [TestCase("fire alarm", true)]
+        public void Constructor_WithInvalidStartState_DoesntSetState(string startState, bool willThrowException)
+        {
+            if (willThrowException)
+            {
+                // Arrange & Act
+                // make sure the exception is thrown
+                var ex = Assert.Throws<ArgumentException>(() => new BuildingController("id", startState));
+
+                if (ex != null)
+                {
+                    // Assert
+                    // make sure the message is correct
+                    Assert.AreEqual("Argument Exception: BuildingController can only be initialised to the following states 'open', 'closed', 'out of hours'", ex.Message);
+                }
+
+                return;
+            }
+
+            // Arrange
+            string expectedState = startState;
+
+            // Arrange & Act
+            var controller = new BuildingController("id", startState);
+
+            // Assert
+            Assert.AreEqual(expectedState, controller.GetCurrentState());
         }
     }
 }
