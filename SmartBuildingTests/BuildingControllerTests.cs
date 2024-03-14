@@ -59,7 +59,7 @@ namespace SmartBuildingTests
         public void SetBuildingId_WithUppercaseId_SetsLowercaseBuildingId(string id, string expectedId)
         {
             // Arrange
-            BuildingController controller = new BuildingController("testing id");
+            BuildingController controller = new("testing id");
 
             // Act
             controller.SetBuildingID(id);
@@ -75,7 +75,7 @@ namespace SmartBuildingTests
         public void Constructor_SetsCurrentStateToOutOfHours(string id)
         {
             // Arrange
-            BuildingController controller = new BuildingController(id);
+            BuildingController controller = new(id);
 
             // Act
             string state = controller.GetCurrentState();
@@ -91,7 +91,7 @@ namespace SmartBuildingTests
         public void GetCurrentState_WhenCalled_ReturnsCurrentState(string id)
         {
             // Arrange
-            BuildingController controller = new BuildingController(id);
+            BuildingController controller = new(id);
 
             // Act
             string state = controller.GetCurrentState();
@@ -114,7 +114,7 @@ namespace SmartBuildingTests
         public void SetCurrentState_WithDifferentStates_OnlyAllowsValid(string state, bool expectedOutcome)
         {
             // Arrange
-            BuildingController controller = new BuildingController("id");
+            BuildingController controller = new("id");
 
             // Act
             bool result = controller.SetCurrentState(state);
@@ -125,16 +125,73 @@ namespace SmartBuildingTests
 
         // -- Level 2 Tests --
         // L2R1
+        // valid cases
+        [TestCase("out of hours", "fire drill", "out of hours", true)]
+        [TestCase("closed", "fire drill", "closed", true)]
+        [TestCase("closed", "fire drill", "fire drill", true)]
+        [TestCase("closed", "fire alarm", "fire alarm", true)]
+        [TestCase("closed", "fire alarm", "closed", true)]
+        [TestCase("open", "fire drill", "open", true)]
+        [TestCase("open", "fire alarm", "open", true)]
+        [TestCase("open", "fire drill", "fire drill", true)]
+        [TestCase("open", "fire alarm", "fire alarm", true)]
+        [TestCase("out of hours", "fire drill", "fire drill", true)]
+        [TestCase("out of hours", "fire alarm", "out of hours", true)]
+        // failure cases
+        [TestCase("out of hours", "fire drill", "closed", false)]
+        [TestCase("out of hours", "fire drill", "open", false)]
+        [TestCase("out of hours", "fire drill", "fire alarm", false)]
+        [TestCase("out of hours", "fire alarm", "closed", false)]
+        [TestCase("out of hours", "fire alarm", "open", false)]
+        [TestCase("out of hours", "fire alarm", "fire drill", false)]
+        [TestCase("out of hours", "fire alarm", "fire alarm", true)]
+        [TestCase("closed", "fire drill", "out of hours", false)]
+        [TestCase("closed", "fire drill", "open", false)]
+        [TestCase("closed", "fire drill", "fire alarm", false)]
+        [TestCase("closed", "fire alarm", "out of hours", false)]
+        [TestCase("closed", "fire alarm", "open", false)]
+        [TestCase("closed", "fire alarm", "fire drill", false)]
+        [TestCase("open", "fire drill", "out of hours", false)]
+        [TestCase("open", "fire drill", "closed", false)]
+        [TestCase("open", "fire drill", "fire alarm", false)]
+        [TestCase("open", "fire alarm", "out of hours", false)]
+        [TestCase("open", "fire alarm", "closed", false)]
+        [TestCase("open", "fire alarm", "fire drill", false)]
+
+        public void SetCurrentState_StateTransition_OnlyAllowsValid_WithHistory(string historyState, string fromState, string toState, bool expectedOutcome)
+        {
+            // Arrange
+            BuildingController controller = new("id");
+
+            // Act
+            controller.SetCurrentState(historyState);
+            controller.SetCurrentState(fromState);
+            bool result = controller.SetCurrentState(toState);
+
+            // Assert
+            Assert.AreEqual(expectedOutcome, result);
+        }
+
+        // L2R1
         [TestCase("open", "out of hours", true)]
-        [TestCase("closed", "out of hours", true)]
-        [TestCase("out of hours", "open", true)]
-        [TestCase("out of hours", "closed", true)]
         [TestCase("open", "closed", false)]
+        [TestCase("open", "open", true)]
+        [TestCase("open", "fire drill", true)]
+        [TestCase("open", "fire alarm", true)]
+        [TestCase("closed", "out of hours", true)]
+        [TestCase("closed", "closed", true)]
         [TestCase("closed", "open", false)]
+        [TestCase("closed", "fire drill", true)]
+        [TestCase("closed", "fire alarm", true)]
+        [TestCase("out of hours", "out of hours", true)]
+        [TestCase("out of hours", "closed", true)]
+        [TestCase("out of hours", "open", true)]
+        [TestCase("out of hours", "fire drill", true)]
+        [TestCase("out of hours", "fire alarm", true)]
         public void SetCurrentState_StateTransition_OnlyAllowsValid(string fromState, string toState, bool expectedOutcome)
         {
             // Arrange
-            BuildingController controller = new BuildingController("id");
+            BuildingController controller = new("id");
 
             // Act
             controller.SetCurrentState(fromState);
@@ -151,7 +208,7 @@ namespace SmartBuildingTests
         public void SetCurrentState_ToSameState_ReturnsTrue(string state)
         {
             // Arrange
-            BuildingController controller = new BuildingController("id");
+            BuildingController controller = new("id");
 
             // Act
             controller.SetCurrentState(state);
@@ -172,7 +229,7 @@ namespace SmartBuildingTests
         public void Constructor_WithValidStartState_SetsState(string id, string expectedID, string startState, string expectedState)
         {
             // Arrange & Act
-            BuildingController controller = new BuildingController(id, startState);
+            BuildingController controller = new(id, startState);
 
             // Assert
             Assert.AreEqual(expectedID, controller.GetBuildingID());
@@ -207,7 +264,7 @@ namespace SmartBuildingTests
             string expectedState = startState;
 
             // Arrange & Act
-            BuildingController controller = new BuildingController("id", startState);
+            BuildingController controller = new("id", startState);
 
             // Assert
             Assert.AreEqual(expectedState, controller.GetCurrentState());

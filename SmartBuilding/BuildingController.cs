@@ -44,6 +44,7 @@
 
             // set SetCurrentState
             this.currentState = startState;
+            this.historyState = this.currentState;
         }
 
         public BuildingController(string id, ILightManager iLightManager, IFireAlarmManager iFireAlarmManager, IDoorManager iDoorManager, IWebService iWebService, IEmailService iEmailService)
@@ -60,6 +61,7 @@
 
             // set current state
             this.currentState = "out of hours";
+            this.historyState = this.currentState;
         }
 
         public string GetStatusReport()
@@ -199,6 +201,8 @@
                 closed -> out of hours, fire alarm, fire drill
                 out of hours -> closed, open, fire alarm, fire drill
                 open -> out of hours, fire alarm, fire drill
+                fire drill -> history
+                fire alarm -> history
             */
             var transitions = new Dictionary<string, string[]> {
                 { "closed", new[] { "out of hours", "fire alarm", "fire drill" } },
@@ -207,6 +211,20 @@
                 { "fire drill", new[] { "history" } },
                 { "fire alarm", new[] { "history" } },
             };
+
+            // if current state is in list of emergency states
+            if (emergencyStates.Contains(currentState) && regularStates.Contains(incomingState))
+            {
+                // check if the history state is not null
+                if (historyState != null)
+                {
+                    if (incomingState == historyState)
+                    {
+                        currentState = incomingState;
+                        return true;
+                    }
+                }
+            }
 
             // Check if the current state allows transitioning to the new state
             if (transitions[currentState].Contains(incomingState))
