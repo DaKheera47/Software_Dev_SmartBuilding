@@ -12,11 +12,11 @@
         private string[] allValidStates;
 
         // managers
-        private ILightManager? iLightManager;
-        private IFireAlarmManager? iFireAlarmManager;
-        private IDoorManager? iDoorManager;
-        private IWebService? iWebService;
-        private IEmailService? iEmailService;
+        private readonly ILightManager? iLightManager;
+        private readonly IFireAlarmManager? iFireAlarmManager;
+        private readonly IDoorManager? iDoorManager;
+        private readonly IWebService? iWebService;
+        private readonly IEmailService? iEmailService;
 
         // constructor
         public BuildingController(string buildingID)
@@ -111,7 +111,7 @@
         public bool SetCurrentState(string state)
         {
             // set state to lowercase
-            state = state.ToLower();
+            // state = state.ToLower();
 
             // if invalid state
             if (!allValidStates.Contains(state)) { return false; }
