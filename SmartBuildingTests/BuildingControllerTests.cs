@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
+using NSubstitute;
 using SmartBuilding;
-
 
 namespace SmartBuildingTests
 {
@@ -29,7 +29,7 @@ namespace SmartBuildingTests
         public void Constructor_SetsDifferentIDs_SetsBuildingID(string id, string expectedId)
         {
             // Arrange & Act
-            BuildingController controller = new BuildingController(id);
+            BuildingController controller = new(id);
 
             // Assert
             Assert.AreEqual(expectedId, controller.GetBuildingID());
@@ -42,7 +42,7 @@ namespace SmartBuildingTests
         public void GetBuildingId_AfterConstruction_ReturnsId(string id, string expectedId)
         {
             // Arrange
-            BuildingController controller = new BuildingController(id);
+            BuildingController controller = new(id);
 
             // Act
             string? result = controller.GetBuildingID();
@@ -58,7 +58,7 @@ namespace SmartBuildingTests
         public void SetBuildingId_WithUppercaseId_SetsLowercaseBuildingId(string id, string expectedId)
         {
             // Arrange
-            var controller = new BuildingController("testing id");
+            BuildingController controller = new BuildingController("testing id");
 
             // Act
             controller.SetBuildingID(id);
@@ -74,10 +74,10 @@ namespace SmartBuildingTests
         public void Constructor_SetsCurrentStateToOutOfHours(string id)
         {
             // Arrange
-            var controller = new BuildingController(id);
+            BuildingController controller = new BuildingController(id);
 
             // Act
-            var state = controller.GetCurrentState();
+            string state = controller.GetCurrentState();
 
             // Assert
             Assert.AreEqual("out of hours", state);
@@ -90,10 +90,10 @@ namespace SmartBuildingTests
         public void GetCurrentState_WhenCalled_ReturnsCurrentState(string id)
         {
             // Arrange
-            var controller = new BuildingController(id);
+            BuildingController controller = new BuildingController(id);
 
             // Act
-            var state = controller.GetCurrentState();
+            string state = controller.GetCurrentState();
 
             // Assert
             Assert.AreEqual("out of hours", state);
@@ -113,10 +113,10 @@ namespace SmartBuildingTests
         public void SetCurrentState_WithDifferentStates_OnlyAllowsValid(string state, bool expectedOutcome)
         {
             // Arrange
-            var controller = new BuildingController("id");
+            BuildingController controller = new BuildingController("id");
 
             // Act
-            var result = controller.SetCurrentState(state);
+            bool result = controller.SetCurrentState(state);
 
             // Assert
             Assert.AreEqual(expectedOutcome, result);
@@ -132,11 +132,11 @@ namespace SmartBuildingTests
         public void SetCurrentState_StateTransition_OnlyAllowsValid(string fromState, string toState, bool expectedOutcome)
         {
             // Arrange
-            var controller = new BuildingController("id");
+            BuildingController controller = new BuildingController("id");
 
             // Act
             controller.SetCurrentState(fromState);
-            var result = controller.SetCurrentState(toState);
+            bool result = controller.SetCurrentState(toState);
 
             // Assert
             Assert.AreEqual(expectedOutcome, result);
@@ -149,11 +149,11 @@ namespace SmartBuildingTests
         public void SetCurrentState_ToSameState_ReturnsTrue(string state)
         {
             // Arrange
-            var controller = new BuildingController("id");
+            BuildingController controller = new BuildingController("id");
 
             // Act
             controller.SetCurrentState(state);
-            var result = controller.SetCurrentState(state);
+            bool result = controller.SetCurrentState(state);
 
             // Assert
             Assert.IsTrue(result);
@@ -170,7 +170,7 @@ namespace SmartBuildingTests
         public void Constructor_WithValidStartState_SetsState(string id, string expectedID, string startState, string expectedState)
         {
             // Arrange & Act
-            var controller = new BuildingController(id, startState);
+            BuildingController controller = new BuildingController(id, startState);
 
             // Assert
             Assert.AreEqual(expectedID, controller.GetBuildingID());
@@ -189,7 +189,7 @@ namespace SmartBuildingTests
             {
                 // Arrange & Act
                 // make sure the exception is thrown
-                var ex = Assert.Throws<ArgumentException>(() => new BuildingController("id", startState));
+                System.ArgumentException? ex = Assert.Throws<ArgumentException>(() => new BuildingController("id", startState));
 
                 if (ex != null)
                 {
@@ -205,10 +205,88 @@ namespace SmartBuildingTests
             string expectedState = startState;
 
             // Arrange & Act
-            var controller = new BuildingController("id", startState);
+            BuildingController controller = new BuildingController("id", startState);
 
             // Assert
             Assert.AreEqual(expectedState, controller.GetCurrentState());
+        }
+
+        // L3R1
+        [Test]
+        public void Constructor_SettingManagers_SetsManagersCorrectly()
+        {
+            // Arrange
+            ILightManager lightManager = Substitute.For<ILightManager>();
+            IDoorManager doorManager = Substitute.For<IDoorManager>();
+            IFireAlarmManager fireAlarmManager = Substitute.For<IFireAlarmManager>();
+            IWebService webService = Substitute.For<IWebService>();
+            IEmailService emailService = Substitute.For<IEmailService>();
+
+            // Act
+            BuildingController controller = new("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
+
+            // Assert
+            Assert.AreEqual(lightManager, controller.iLightManager);
+            Assert.AreEqual(doorManager, controller.iDoorManager);
+            Assert.AreEqual(fireAlarmManager, controller.iFireAlarmManager);
+            Assert.AreEqual(webService, controller.iWebService);
+            Assert.AreEqual(emailService, controller.iEmailService);
+        }
+
+        // L3R3
+        [TestCase("Lights,OK,OK,OK,", "Doors,OK,OK,OK,", "FireAlarm,OK,OK,OK,", "Lights,OK,OK,OK,Doors,OK,OK,OK,FireAlarm,OK,OK,OK,")]
+        [TestCase("Lights,FAULT,OK,OK,", "Doors,OK,FAULT,OK,", "FireAlarm,FAULT,OK,OK,", "Lights,FAULT,OK,OK,Doors,OK,FAULT,OK,FireAlarm,FAULT,OK,OK,")]
+        [TestCase("Lights,OK,FAULT,OK,FAULT,", "Doors,FAULT,OK,FAULT,OK,", "FireAlarm,OK,FAULT,OK,FAULT,", "Lights,OK,FAULT,OK,FAULT,Doors,FAULT,OK,FAULT,OK,FireAlarm,OK,FAULT,OK,FAULT,")]
+        [TestCase("Lights,OK,FAULT,OK,", "Doors,FAULT,OK,FAULT,", "FireAlarm,OK,OK,FAULT,", "Lights,OK,FAULT,OK,Doors,FAULT,OK,FAULT,FireAlarm,OK,OK,FAULT,")]
+        [TestCase("Lights,OK,OK,OK,", "Doors,OK,OK,OK,", "FireAlarm,OK,OK,OK,", "Lights,OK,OK,OK,Doors,OK,OK,OK,FireAlarm,OK,OK,OK,")]
+        [TestCase("Lights,FAULT,OK,OK,", "Doors,OK,FAULT,OK,", "FireAlarm,FAULT,OK,OK,", "Lights,FAULT,OK,OK,Doors,OK,FAULT,OK,FireAlarm,FAULT,OK,OK,")]
+        public void GetStatusReport_ConcatenatesManagerOutputs_ReturnsConcatenatedString(string lightStatus, string doorStatus, string fireAlarmStatus, string expectedStatusReport)
+        {
+            // Arrange
+            ILightManager lightManager = Substitute.For<ILightManager>();
+            IDoorManager doorManager = Substitute.For<IDoorManager>();
+            IFireAlarmManager fireAlarmManager = Substitute.For<IFireAlarmManager>();
+            IWebService webService = Substitute.For<IWebService>();
+            IEmailService emailService = Substitute.For<IEmailService>();
+
+            // Set up the manager outputs
+            lightManager.GetStatus().Returns(lightStatus);
+            doorManager.GetStatus().Returns(doorStatus);
+            fireAlarmManager.GetStatus().Returns(fireAlarmStatus);
+
+            // Set up the controller with the managers
+            BuildingController controller = new("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
+
+            // Act
+            string statusReport = controller.GetStatusReport();
+
+            // Assert
+            Assert.AreEqual(expectedStatusReport, statusReport);
+        }
+
+        // L3R4/L3R5
+        [TestCase(true, true, "open")]
+        [TestCase(false, false, "out of hours")]
+        public void SetCurrentState_OpensAllDoors_ReturnsTrueIfDoorsCanOpen(bool doorOpenResult, bool expectedSetStateResult, string expectedStateAfterOpenAttempt)
+        {
+            // Arrange
+            ILightManager lightManager = Substitute.For<ILightManager>();
+            IDoorManager doorManager = Substitute.For<IDoorManager>();
+            IFireAlarmManager fireAlarmManager = Substitute.For<IFireAlarmManager>();
+            IWebService webService = Substitute.For<IWebService>();
+            IEmailService emailService = Substitute.For<IEmailService>();
+            doorManager.OpenAllDoors().Returns(doorOpenResult);
+
+            BuildingController controller = new("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
+
+            // Act
+            bool result = controller.SetCurrentState("open");
+
+            // Assert
+            Assert.AreEqual(expectedSetStateResult, result);
+            Assert.AreEqual(expectedStateAfterOpenAttempt, controller.GetCurrentState());
+            // Check that the doors were attempted to open
+            doorManager.Received().OpenAllDoors();
         }
     }
 }

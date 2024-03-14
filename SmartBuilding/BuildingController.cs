@@ -12,13 +12,12 @@
         private string[] allValidStates;
 
         // managers
-        private readonly ILightManager? iLightManager;
-        private readonly IFireAlarmManager? iFireAlarmManager;
-        private readonly IDoorManager? iDoorManager;
-        private readonly IWebService? iWebService;
-        private readonly IEmailService? iEmailService;
+        public readonly ILightManager? iLightManager;
+        public readonly IFireAlarmManager? iFireAlarmManager;
+        public readonly IDoorManager? iDoorManager;
+        public readonly IWebService? iWebService;
+        public readonly IEmailService? iEmailService;
 
-        // constructor
         public BuildingController(string id)
         {
             // set building id
@@ -28,7 +27,6 @@
             this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
         }
 
-        // additional constructor with buildingID and currentState
         public BuildingController(string id, string startState)
         {
             startState = startState.ToLower();
@@ -45,10 +43,9 @@
             SetBuildingID(id);
 
             // set SetCurrentState
-            currentState = startState;
+            this.currentState = startState;
         }
 
-        // L3R1
         public BuildingController(string id, ILightManager iLightManager, IFireAlarmManager iFireAlarmManager, IDoorManager iDoorManager, IWebService iWebService, IEmailService iEmailService)
         {
             this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
@@ -62,10 +59,9 @@
             SetBuildingID(id);
 
             // set current state
-            SetCurrentState("out of hours");
+            this.currentState = "out of hours";
         }
 
-        // L3R3
         public string GetStatusReport()
         {
             if (iLightManager == null || iFireAlarmManager == null || iDoorManager == null)
@@ -121,6 +117,23 @@
 
             // if current state is the same as incoming state
             if (incomingState == currentState) { return true; }
+
+            switch (incomingState)
+            {
+                case "open":
+                    if (iDoorManager != null)
+                    {
+                        bool openedDoors = iDoorManager.OpenAllDoors();
+
+                        // if doors did not open
+                        if (!openedDoors) { return false; }
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
 
             // Local dictionary for state transitions
             /*  Valid transitions:
