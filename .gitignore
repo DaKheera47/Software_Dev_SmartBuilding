@@ -402,6 +402,12 @@ FodyWeavers.xsd
 # ds_store
 .DS_Store
 
+/SmartBuildingTests/Everyone's Tests.cs
+SmartBuildingTests/Level_Four_Tests.cs
+SmartBuildingTests/Level_One_Tests.cs
+SmartBuildingTests/Level_Three_Tests.cs
+SmartBuildingTests/Level_Two_Tests.cs
+
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
