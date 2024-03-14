@@ -78,6 +78,27 @@
             // in order of light, door, fire alarm
             string statusReport = lightStatus + doorStatus + fireAlarmStatus;
 
+            List<string> faultyItems = new();
+
+            if (lightStatus.Contains("FAULT"))
+            {
+                faultyItems.Add("Lights");
+            }
+            if (doorStatus.Contains("FAULT"))
+            {
+                faultyItems.Add("Doors");
+            }
+            if (fireAlarmStatus.Contains("FAULT"))
+            {
+                faultyItems.Add("FireAlarm");
+            }
+
+            // If there are any faulty items, join them with commas and log the engineer required.
+            if (faultyItems.Any())
+            {
+                iWebService?.LogEngineerRequired(string.Join(",", faultyItems) + ",");
+            }
+
             return statusReport;
         }
 
