@@ -7,4 +7,7 @@ public interface IDoorManager
 
     // Method to open all doors
     bool OpenAllDoors();
+
+    // method to lock all doors
+    bool LockAllDoors();
 }

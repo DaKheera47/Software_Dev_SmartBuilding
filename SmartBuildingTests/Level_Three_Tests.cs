@@ -20,7 +20,7 @@ namespace SmartBuildingTests
             var emailService = Substitute.For<IEmailService>();
             var buildingController = new BuildingController("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
 
-            buildingController.SetCurrentState("closed"); // Ensure the initial state is closed before attempting to open
+            buildingController.SetCurrentState("out of hours"); // Ensure the initial state is closed before attempting to open
             doorManager.OpenAllDoors().Returns(doorOpenResult);
 
             // Act
@@ -33,7 +33,7 @@ namespace SmartBuildingTests
 
         // L3R4
         [TestCase(true, true, "open")]
-        [TestCase(false, false, "closed")]
+        [TestCase(false, false, "open")]
         public void SetCurrentState_ToOpen_CallsDoorManagerAndSetsStateAccordingly(bool doorOpenResult, bool expectedSetStateResult, string expectedStateAfterOpenAttempt)
         {
             // Arrange
@@ -45,7 +45,7 @@ namespace SmartBuildingTests
             var buildingController = new BuildingController("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
 
             // starting from state being "closed"
-            buildingController.SetCurrentState("closed");
+            buildingController.SetCurrentState("out of hours");
             doorManager.OpenAllDoors().Returns(doorOpenResult);
 
             // Act

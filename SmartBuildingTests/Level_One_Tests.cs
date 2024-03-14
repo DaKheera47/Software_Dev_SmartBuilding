@@ -14,7 +14,7 @@ namespace SmartBuildingTests
             var controller = new BuildingController("ABC123");
 
             // Assert
-            Assert.AreEqual("abc123", controller.GetBuildingId());
+            Assert.AreEqual("abc123", controller.GetBuildingID());
         }
 
         // L1R2: Test GetBuildingID returns the correct value
@@ -26,7 +26,7 @@ namespace SmartBuildingTests
             var controller = new BuildingController(expectedId);
 
             // Act
-            var result = controller.GetBuildingId();
+            var result = controller.GetBuildingID();
 
             // Assert
             Assert.AreEqual(expectedId, result);
@@ -41,10 +41,10 @@ namespace SmartBuildingTests
             var newId = "NEWID";
 
             // Act
-            controller.SetBuildingId(newId);
+            controller.SetBuildingID(newId);
 
             // Assert
-            Assert.AreEqual(newId.ToLower(), controller.GetBuildingId());
+            Assert.AreEqual(newId.ToLower(), controller.GetBuildingID());
         }
 
         // L1R5: Test constructor sets currentState to “out of hours”

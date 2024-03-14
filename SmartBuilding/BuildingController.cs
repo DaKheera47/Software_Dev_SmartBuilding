@@ -4,9 +4,9 @@
     {
         // Write BuildingController code here...
         // define building variables
-        private string? buildingId;
+        private string? buildingID;
         private string? currentState;
-        private string? previousState;
+        public string? historyState;
         readonly private string[] regularStates = { "closed", "out of hours", "open" };
         readonly private string[] emergencyStates = { "fire drill", "fire alarm" };
         private string[] allValidStates;
@@ -19,18 +19,20 @@
         private IEmailService? iEmailService;
 
         // constructor
-        public BuildingController(string buildingId)
+        public BuildingController(string buildingID)
         {
             // set building id
-            SetBuildingId(buildingId);
+            SetBuildingID(buildingID);
             this.currentState = "out of hours";
-            this.previousState = this.currentState;
+            this.historyState = this.currentState;
             this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
         }
 
         // additional constructor with buildingID and currentState
         public BuildingController(string buildingId, string startState)
         {
+            startState = startState.ToLower();
+
             this.allValidStates = regularStates.Concat(emergencyStates).ToArray();
 
             // set current state
@@ -40,7 +42,7 @@
             }
 
             // set building id
-            SetBuildingId(buildingId);
+            SetBuildingID(buildingId);
 
             // set SetCurrentState
             SetCurrentState(startState);
@@ -55,6 +57,12 @@
             this.iDoorManager = iDoorManager;
             this.iWebService = iWebService;
             this.iEmailService = iEmailService;
+
+            // set building id
+            SetBuildingID(id);
+
+            // set current state
+            SetCurrentState("out of hours");
         }
 
         // L3R3
@@ -78,23 +86,23 @@
         }
 
         // set building id
-        public void SetBuildingId(string buildingId)
+        public void SetBuildingID(string buildingId)
         {
             // convert to lowercase
             buildingId = buildingId.ToLower();
 
             // convert building id to int
-            this.buildingId = buildingId;
+            this.buildingID = buildingId;
         }
 
         // get building id
-        public string? GetBuildingId()
+        public string? GetBuildingID()
         {
-            return buildingId;
+            return buildingID;
         }
 
         // get current state
-        public string? GetCurrentState()
+        public string GetCurrentState()
         {
             return currentState;
         }
@@ -123,16 +131,18 @@
             // Remember the previous state before changing to a new state
             if (!emergencyStates.Contains(state))
             {
-                previousState = currentState;
+                historyState = currentState;
             }
 
             // if current state is in emergency, then do not change the state unless it is reverting to history state
-            if (emergencyStates.Contains(currentState) && state != previousState)
+            if (emergencyStates.Contains(currentState) && state != historyState)
             {
                 return false;
             }
 
-            currentState = state;
+            // if null, set to current state
+            currentState ??= state;
+
             return true;
         }
     }
