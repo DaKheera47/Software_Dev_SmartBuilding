@@ -45,7 +45,7 @@
             SetBuildingID(id);
 
             // set SetCurrentState
-            SetCurrentState(startState);
+            currentState = startState;
         }
 
         // L3R1
@@ -129,9 +129,11 @@
                 open -> out of hours
             */
             var transitions = new Dictionary<string, string[]> {
-                { "closed", new[] { "out of hours" } },
-                { "out of hours", new[] { "closed", "open" } },
-                { "open", new[] { "out of hours" } }
+                { "closed", new[] { "out of hours", "fire alarm", "fire drill" } },
+                { "out of hours", new[] { "closed", "open", "fire alarm", "fire drill" } },
+                { "open", new[] { "out of hours", "fire alarm", "fire drill" } },
+                { "fire drill", new[] { "history" } },
+                { "fire alarm", new[] { "history" } },
             };
 
             // Check if the current state allows transitioning to the new state
