@@ -131,15 +131,41 @@
 
                     break;
 
+                case "closed":
+                    if (iDoorManager != null && iLightManager != null)
+                    {
+                        bool lockedDoors = iDoorManager.LockAllDoors();
+                        iLightManager.SetAllLights(false);
+
+                        // if doors did not lock
+                        if (!lockedDoors) { return false; }
+                    }
+
+                    break;
+
+                case "fire alarm":
+                    if (iFireAlarmManager != null && iDoorManager != null && iLightManager != null && iWebService != null)
+                    {
+                        iFireAlarmManager.SetAlarm(true);
+                        iLightManager.SetAllLights(true);
+                        iWebService.LogFireAlarm("fire alarm");
+                        iDoorManager.OpenAllDoors();
+
+                        // if doors did not open
+                        if (!iDoorManager.OpenAllDoors()) { return false; }
+                    }
+
+                    break;
+
                 default:
                     break;
             }
 
             // Local dictionary for state transitions
             /*  Valid transitions:
-                closed -> out of hours
-                out of hours -> closed, open
-                open -> out of hours
+                closed -> out of hours, fire alarm, fire drill
+                out of hours -> closed, open, fire alarm, fire drill
+                open -> out of hours, fire alarm, fire drill
             */
             var transitions = new Dictionary<string, string[]> {
                 { "closed", new[] { "out of hours", "fire alarm", "fire drill" } },
@@ -160,43 +186,6 @@
             }
 
             return false;
-
-
-
-            // set state to lowercase
-            // state = state.ToLower();
-
-            // // if invalid state
-            // if (!allValidStates.Contains(state)) { return false; }
-
-            // // if state being set to is open, then open all doors
-            // if (state == "open")
-            // {
-            //     if (iDoorManager != null)
-            //     {
-            //         bool openedDoors = iDoorManager.OpenAllDoors();
-
-            //         // if doors did not open
-            //         if (!openedDoors) { return false; }
-            //     }
-            // }
-
-            // // Remember the previous state before changing to a new state
-            // if (!emergencyStates.Contains(state))
-            // {
-            //     historyState = currentState;
-            // }
-
-            // // if current state is in emergency, then do not change the state unless it is reverting to history state
-            // if (emergencyStates.Contains(currentState) && state != historyState)
-            // {
-            //     return false;
-            // }
-
-            // // if null, set to current state
-            // currentState ??= state;
-
-            // return true;
         }
     }
 }
