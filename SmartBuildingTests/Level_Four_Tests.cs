@@ -141,5 +141,49 @@ namespace SmartBuildingTests
                 webService.Received().LogEngineerRequired(string.Join(",", faultyItems) + ",");
             }
         }
+
+        // L4R4
+        [TestCase(true, "Exception Message!")]
+        [TestCase(true, "The web service was unable to log the fire alarm.")]
+        [TestCase(false, "")]
+        public void SetCurrentState_WebServiceThrowsException_EmailSent(bool willWebServiceThrow, string exceptionMessage)
+        {
+            // Arrange
+            ILightManager lightManager = Substitute.For<ILightManager>();
+            IDoorManager doorManager = Substitute.For<IDoorManager>();
+            IFireAlarmManager fireAlarmManager = Substitute.For<IFireAlarmManager>();
+            IWebService webService = Substitute.For<IWebService>();
+            IEmailService emailService = Substitute.For<IEmailService>();
+
+            // set up door manager to return true when all doors are opened
+            doorManager.OpenAllDoors().Returns(true);
+
+            // set up web service to throw exception if willWebServiceThrow is true
+            if (willWebServiceThrow)
+            {
+                webService.When(x => x.LogFireAlarm("fire alarm")).Do(x => { throw new System.Exception(exceptionMessage); });
+            }
+
+            BuildingController controller = new("id", lightManager, fireAlarmManager, doorManager, webService, emailService);
+
+            // Act
+            bool result = controller.SetCurrentState("fire alarm");
+
+            // Assert
+            // firealarm was set
+            fireAlarmManager.Received().SetAlarm(true);
+            // doors were unlocked
+            doorManager.Received().OpenAllDoors();
+            // lights were on
+            lightManager.Received().SetAllLights(true);
+            // online log was called with "fire alarm"
+            webService.Received().LogFireAlarm("fire alarm");
+
+            // if web service throws exception, email service should be called
+            if (willWebServiceThrow)
+            {
+                emailService.Received().SendMail("smartbuilding@uclan.ac.uk", "failed to log alarm", exceptionMessage);
+            }
+        }
     }
 }

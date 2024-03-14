@@ -169,7 +169,19 @@
                     {
                         iFireAlarmManager.SetAlarm(true);
                         iLightManager.SetAllLights(true);
-                        iWebService.LogFireAlarm("fire alarm");
+
+                        // if exception thrown
+                        try
+                        {
+                            iWebService.LogFireAlarm("fire alarm");
+                        }
+                        catch (System.Exception e)
+                        {
+                            string exceptionMessage = e.Message;
+
+                            iEmailService?.SendMail("smartbuilding@uclan.ac.uk", "failed to log alarm", exceptionMessage);
+                        }
+
                         iDoorManager.OpenAllDoors();
 
                         // if doors did not open
